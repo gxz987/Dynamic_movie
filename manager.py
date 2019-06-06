@@ -1,6 +1,9 @@
+import logging
+from flask import current_app
 from flask_script import Manager
 from flask_migrate import MigrateCommand, Migrate
 from info import create_app, db
+
 
 # 通过传入不同配置创造出不同配置下的app实例，python设计模式：工厂模式
 app = create_app("develop")
@@ -15,6 +18,13 @@ manager.add_command("db", MigrateCommand)
 
 @app.route('/')
 def index():
+    logging.debug("This is a debug log.")
+    logging.info("This is a info log.")
+    logging.warning("This is a warning log.")
+    logging.error("This is a error log.")
+    logging.critical("This is a critical log.")
+
+    current_app.logger.debug("I am a flask debug.")
     return 'ok'
 
 

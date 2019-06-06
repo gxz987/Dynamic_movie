@@ -1,9 +1,8 @@
 from redis import StrictRedis
-
+import logging
 
 class Config(object):
     SECRET_KEY = '12314326'
-
     SQLALCHEMY_DATABASE_URI = 'mysql://root:mysql@127.0.0.1:3306/news'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
@@ -25,11 +24,12 @@ class Config(object):
 class DevelopConfig(Config):
     """开发模式"""
     DEBUG = True
+    LOG_LEVEL = logging.DEBUG
 
 
 class ProductConfig(Config):
     """生产模式"""
-    pass
+    LOG_LEVEL = logging.ERROR
 
 
 class TestingConfig(Config):
