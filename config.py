@@ -37,6 +37,7 @@ class TestingConfig(Config):
     DEBUG = True
 
 
+# 使用字典封装
 config = {
     "develop": DevelopConfig,
     "product": ProductConfig,
