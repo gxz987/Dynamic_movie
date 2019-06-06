@@ -35,3 +35,10 @@ class ProductConfig(Config):
 class TestingConfig(Config):
     """调试模式"""
     DEBUG = True
+
+
+config = {
+    "develop": DevelopConfig,
+    "product": ProductConfig,
+    "testing": TestingConfig
+}
