@@ -3,7 +3,7 @@ from redis import StrictRedis
 
 class Config(object):
     SECRET_KEY = '12314326'
-    DEBUG = True
+
     SQLALCHEMY_DATABASE_URI = 'mysql://root:mysql@127.0.0.1:3306/news'
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
@@ -20,3 +20,18 @@ class Config(object):
     SESSION_PERMANENT = False
     # 设置session的过期时间
     PERMANENT_SESSION_LIFETIME = 86400 * 2
+
+
+class DevelopConfig(Config):
+    """开发模式"""
+    DEBUG = True
+
+
+class ProductConfig(Config):
+    """生产模式"""
+    pass
+
+
+class TestingConfig(Config):
+    """调试模式"""
+    DEBUG = True
