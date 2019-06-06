@@ -7,10 +7,13 @@ from flask_sqlalchemy import SQLAlchemy
 from redis import StrictRedis
 from flask_wtf import CSRFProtect
 from flask_session import Session
+from info.modules.index import index_blu
+
 
 # db = SQLAlchemy(app)  # 拆分成两步
 # db = SQLAlchemy()
 # db.init_app(app)
+
 
 db = SQLAlchemy()
 
@@ -44,4 +47,8 @@ def create_app(config_name):
     CSRFProtect(app)
     # 5.集成flask_session, Session 指定session的保存路径
     Session(app)
+
+    # 注册蓝图
+    app.register_blueprint(index_blu)
+
     return app
