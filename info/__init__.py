@@ -5,6 +5,11 @@ from redis import StrictRedis
 from flask_wtf import CSRFProtect
 from flask_session import Session
 
+# db = SQLAlchemy(app)  # 拆分成两步
+# db = SQLAlchemy()
+# db.init_app(app)
+
+db = SQLAlchemy()
 
 # 只要是可变的参数：一、可以放在配置文件中，二、用函数封装 三、用全局变量
 # 所有可变的参数用函数的形参来代替
@@ -13,8 +18,8 @@ def create_app(config_name):
     # 1.集成配置类
     app.config.from_object(config[config_name])
     # 2.集成SQLAlchemy
-    db = SQLAlchemy(app)
-
+    # db = SQLAlchemy(app)
+    db.init_app(app)
     # 3.集成redis
     redis_store = StrictRedis(host=config[config_name].REDIS_HOST, port=config[config_name].REDIS_PORT)
     # 4.集成CSRFProtect
