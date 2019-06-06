@@ -7,7 +7,6 @@ from flask_sqlalchemy import SQLAlchemy
 from redis import StrictRedis
 from flask_wtf import CSRFProtect
 from flask_session import Session
-from info.modules.index import index_blu
 
 
 # db = SQLAlchemy(app)  # 拆分成两步
@@ -31,6 +30,8 @@ def setup_log(config_name):
     logging.getLogger().addHandler(file_log_handler)
 
 
+redis_store = None  # type:StrictRedis
+
 # 只要是可变的参数：一、可以放在配置文件中，二、用函数封装 三、用全局变量
 # 所有可变的参数用函数的形参来代替
 def create_app(config_name):
@@ -42,6 +43,7 @@ def create_app(config_name):
     # db = SQLAlchemy(app)
     db.init_app(app)
     # 3.集成redis
+    global redis_store
     redis_store = StrictRedis(host=config[config_name].REDIS_HOST, port=config[config_name].REDIS_PORT)
     # 4.集成CSRFProtect
     CSRFProtect(app)
@@ -49,6 +51,8 @@ def create_app(config_name):
     Session(app)
 
     # 注册蓝图
+    # 蓝图模块在哪使用就在哪导入，解决循环导入问题
+    from info.modules.index import index_blu
     app.register_blueprint(index_blu)
 
     return app
