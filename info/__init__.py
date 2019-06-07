@@ -54,5 +54,7 @@ def create_app(config_name):
     # 蓝图模块在哪使用就在哪导入，解决循环导入问题
     from info.modules.index import index_blu
     app.register_blueprint(index_blu)
+    from info.modules.passport import passport_blu
+    app.register_blueprint(passport_blu)
 
     return app
