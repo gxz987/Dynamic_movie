@@ -58,7 +58,7 @@ class CCP(object):
             cls._instance.rest.setAppId(_appId)
         return cls._instance
 
-    def send_template_sms(self, to, datas, temp_id):
+    def send_template_sms(self, to: object, datas: object, temp_id: object) -> object:
         """发送模板短信"""
         # @param to 手机号码
         # @param datas 内容数据 格式为数组 例如：{'12','34'}，如不需替换请填 ''

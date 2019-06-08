@@ -1,10 +1,14 @@
-from flask import request, abort, current_app, make_response, json
+import random
+import re
+
+from flask import request, abort, current_app, make_response, json, jsonify
 
 import constants
 from info import redis_store
 from info.modules.passport import passport_blu
 from info.utils.captcha.captcha import captcha
-
+from info.utils.response_code import RET
+from info.libs.yuntongxun.sms import CCP
 
 @passport_blu.route('/sms_code', methods=["POST"])
 def send_sms_code():
@@ -18,14 +22,56 @@ def send_sms_code():
     6、将手机验证码保存到redis中
     7.告知发送结果，给前段一个响应
     """
-    # 1.
+    # 1.接收前端传入的json类型的数据
     # dict_data = json.loads(request.data)  # request.data 得到的是一个字符串类型
     dict_data = request.json  # request.json 是flask中自带的，得到的结果是字典类型
+
+    # 2.获取参数
     mobile = dict_data.get("mobile")
     image_code = dict_data.get("image_code")
     image_code_id = dict_data.get("image_code_id")
-    # Todo 待完成
 
+    # 3.先全局检验（判断mobile,image_code, image_code_id是否都存在，若不全，则返回参数不全）
+    if not all([mobile, image_code, image_code_id]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数不全")
+
+    # 4.正则验证手机号（到达这，说明手机号已填写）
+    if not re.match(r"1[35678]\d{9}]", mobile):
+        return jsonify(errno=RET.PARAMERR, errmsg="手机号格式不正确")
+
+    # 5.验证图片验证码（到达这，说明手机已验证通过）
+    # 取出真实的验证码
+    try:
+        real_image_code = redis_store.get("ImageCodeId_" + image_code_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据库查询失败")
+
+    # 验证
+    if not real_image_code:
+        return jsonify(errno=RET.NODATA, errmsg="图片验证码已过期")
+
+    if image_code.upper() != real_image_code.upper():
+        return jsonify(errno=RET.DATAERR, errmsg="图片验证码输入错误")
+
+    # 6.定义一个随机的6位手机验证码
+    sms_code_str = "%06d" % random.randint(0, 999999)
+    current_app.logger.info("短信验证码为%s" % sms_code_str)
+
+    result = CCP().send_template_sms(mobile, [sms_code_str, constants.SMS_CODE_REDIS_EXPIRES / 60], 1)
+
+    if result != 0:
+        return jsonify(errno=RET.THIRDERR, errmsg="短信验证码发送失败")
+
+    # 7.将手机验证码保存到redis中
+    try:
+        redis_store.setex("SMS_" + mobile, constants.SMS_CODE_REDIS_EXPIRES, sms_code_str)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="手机验证码保存失败")
+
+    # 8.给前段一个响应
+    return jsonify(errno=RET.OK, errmsg="短信验证码发送成功")
 
 
 @passport_blu.route('/image_code')
