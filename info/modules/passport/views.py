@@ -1,14 +1,76 @@
 import random
 import re
 
-from flask import request, abort, current_app, make_response, json, jsonify
+from flask import request, abort, current_app, make_response, jsonify, session
 
 import constants
-from info import redis_store
+from info import redis_store, db
 from info.modules.passport import passport_blu
 from info.utils.captcha.captcha import captcha
 from info.utils.response_code import RET
 from info.libs.yuntongxun.sms import CCP
+from info.models import User
+
+
+@passport_blu.route('/register', methods=["POST"])
+def register():
+    """注册
+    1.接收参数 mobile smscode password
+    2.整体校验参数的完整性
+    3.手机号正则验证
+    4.从redis中通过手机号取出真实的短信验证码
+    5.和用户输入的验证码进行校验
+    6.初始化一个User()对象，并添加数据
+    7.返回响应
+    """
+    # 1.接收参数 mobile smscode password
+    dict_data = request.json
+    mobile = dict_data.get['mobile']
+    smscode = dict_data.get['smscode']
+    password = dict_data.get['password']
+
+    # 2.整体校验参数的完整性
+    if not all([mobile, smscode, password]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数不全")
+
+    # 3.手机号正则验证
+    if not re.match(r"1[35678]\d{9}", mobile):
+        return jsonify(errno=RET.PARAMERR, errmsg="手机格式不正确")
+
+    # 4.从redis中通过手机号取出真实的短信验证码
+    try:
+        real_sms_code = redis_store.get("SMS" + mobile)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据库查询失败")
+
+    # 5.和用户输入的验证码进行校验
+    if not real_sms_code:
+        return jsonify(errno=RET.NODATA, errmsg="短信验证码已过期")
+
+    if real_sms_code != smscode:
+        return jsonify(errno=RET.DATAERR, errmsg="短信验证码输入不正确")
+
+    # 核心代码：6.初始化一个User()对象，并添加数据
+    user = User()
+    user.nick_name = mobile
+    user.password_hash = password
+    user.mobile = mobile
+
+    try:
+        db.session.add(user)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据库保存失败")
+
+    # 7.session 保持用户登录状态
+    session["user_id"] = user.id
+
+    # 8.给前端一个响应
+    return jsonify(errno=RET.OK, errmsg="注册成功")
+
 
 @passport_blu.route('/sms_code', methods=["POST"])
 def send_sms_code():
