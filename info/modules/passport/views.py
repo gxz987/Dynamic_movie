@@ -25,9 +25,9 @@ def register():
     """
     # 1.接收参数 mobile smscode password
     dict_data = request.json
-    mobile = dict_data.get['mobile']
-    smscode = dict_data.get['smscode']
-    password = dict_data.get['password']
+    mobile = dict_data.get("mobile")
+    smscode = dict_data.get("smscode")
+    password = dict_data.get("password")
 
     # 2.整体校验参数的完整性
     if not all([mobile, smscode, password]):
@@ -36,21 +36,25 @@ def register():
     # 3.手机号正则验证
     if not re.match(r"1[35678]\d{9}", mobile):
         return jsonify(errno=RET.PARAMERR, errmsg="手机格式不正确")
-
+    print("手机pass")
     # 4.从redis中通过手机号取出真实的短信验证码
     try:
         real_sms_code = redis_store.get("SMS" + mobile)
+        print(real_sms_code)
     except Exception as e:
         current_app.logger.error(e)
+        print(11111)
         return jsonify(errno=RET.DBERR, errmsg="数据库查询失败")
 
     # 5.和用户输入的验证码进行校验
     if not real_sms_code:
+        print(2222)
         return jsonify(errno=RET.NODATA, errmsg="短信验证码已过期")
 
     if real_sms_code != smscode:
+        print(33333)
         return jsonify(errno=RET.DATAERR, errmsg="短信验证码输入不正确")
-
+    print("短信验证pass")
     # 核心代码：6.初始化一个User()对象，并添加数据
     user = User()
     user.nick_name = mobile
@@ -120,10 +124,10 @@ def send_sms_code():
     sms_code_str = "%06d" % random.randint(0, 999999)
     current_app.logger.info("短信验证码为%s" % sms_code_str)
 
-    result = CCP().send_template_sms(mobile, [sms_code_str, constants.SMS_CODE_REDIS_EXPIRES / 60], 1)
-
-    if result != 0:
-        return jsonify(errno=RET.THIRDERR, errmsg="短信验证码发送失败")
+    # result = CCP().send_template_sms(mobile, [sms_code_str, constants.SMS_CODE_REDIS_EXPIRES / 60], 1)
+    #
+    # if result != 0:
+    #     return jsonify(errno=RET.THIRDERR, errmsg="短信验证码发送失败")
 
     # 7.将手机验证码保存到redis中
     try:
