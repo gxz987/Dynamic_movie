@@ -1,6 +1,7 @@
 # -*- coding:utf-8 -*-
 
 from info.libs.yuntongxun.CCPRestSDK import REST
+import ssl
 
 # 说明：主账号，登陆云通讯网站后，可在"控制台-应用"中看到开发者主账号ACCOUNT SID
 _accountSid = '8aaf07086b2bcfcf016b31ad0a1a01b5'
@@ -12,7 +13,9 @@ _accountToken = '0c9df57a68a3490791b695cb2de600ff'
 _appId = '8aaf07086b2bcfcf016b31ad0a7b01bc'
 
 # 说明：请求地址，生产环境配置成app.cloopen.com
-_serverIP = 'sandboxapp.cloopen.com'
+# _serverIP = 'sandboxapp.cloopen.com'
+ssl._create_default_https_context = ssl._create_unverified_context  # 取消证书验证
+_serverIP = 'app.cloopen.com'
 
 # 说明：请求端口 ，生产环境为8883
 _serverPort = "8883"
