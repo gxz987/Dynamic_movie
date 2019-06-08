@@ -85,20 +85,21 @@ def get_image_code():
     5、把图片验证码返回给浏览器
     :return:
     """
-    # 1.
+    # 1.接收参数（接收随机的字符串）
     image_code_id = request.args.get("imageCodeId")
-    # 2.
+    # 2.校验参数是否存在,不存在则返回404
     if not image_code_id:
         abort(404)
-    # 3.
+    # 3.生成验证码  captche
     _, text, image = captcha.generate_captcha()
-    # 4.
+    current_app.logger.info("图片验证码为%s" % text)
+    # 4.把随机的字符串和生成的文本验证码以key，value的形式保存到redis
     try:
         redis_store.setex("ImageCodeId_" + image_code_id, constants.IMAGE_CODE_REDIS_EXPIRES, text)
     except Exception as e:
         current_app.logger.error(e)
         abort(500)
-    # 5.
+    # 5.把图片验证码返回给浏览器，修改Content-Type类型
     response = make_response(image)
     response.headers["Content-Type"] = "image/jpg"
     return response
