@@ -39,7 +39,7 @@ def register():
     print("手机pass")
     # 4.从redis中通过手机号取出真实的短信验证码
     try:
-        real_sms_code = redis_store.get("SMS" + mobile)
+        real_sms_code = redis_store.get("SMS_" + mobile)
         print(real_sms_code)
     except Exception as e:
         current_app.logger.error(e)
