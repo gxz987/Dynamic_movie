@@ -44,9 +44,10 @@ def create_app(config_name):
     db.init_app(app)
     # 3.集成redis
     global redis_store
-    redis_store = StrictRedis(host=config[config_name].REDIS_HOST, port=config[config_name].REDIS_PORT)
+    redis_store = StrictRedis(host=config[config_name].REDIS_HOST, port=config[config_name].REDIS_PORT,
+                              decode_responses=True)
     # 4.集成CSRFProtect
-    CSRFProtect(app)
+    # CSRFProtect(app)   # INFO:flask_wtf.csrf:The CSRF token is missing.
     # 5.集成flask_session, Session 指定session的保存路径
     Session(app)
 

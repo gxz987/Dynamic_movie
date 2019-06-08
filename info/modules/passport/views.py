@@ -36,7 +36,7 @@ def send_sms_code():
         return jsonify(errno=RET.PARAMERR, errmsg="参数不全")
 
     # 4.正则验证手机号（到达这，说明手机号已填写）
-    if not re.match(r"1[35678]\d{9}]", mobile):
+    if not re.match(r"1[35678]\d{9}", mobile):
         return jsonify(errno=RET.PARAMERR, errmsg="手机号格式不正确")
 
     # 5.验证图片验证码（到达这，说明手机已验证通过）
@@ -70,7 +70,7 @@ def send_sms_code():
         current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg="手机验证码保存失败")
 
-    # 8.给前段一个响应
+    # 8.给前段一个响应(到达这，说明已通过验证并已保存手机验证码)
     return jsonify(errno=RET.OK, errmsg="短信验证码发送成功")
 
 
