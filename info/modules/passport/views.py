@@ -10,6 +10,7 @@ from info.utils.captcha.captcha import captcha
 from info.utils.response_code import RET
 from info.libs.yuntongxun.sms import CCP
 from info.models import User
+from werkzeug.security import generate_password_hash
 
 
 @passport_blu.route('/register', methods=["POST"])
@@ -36,29 +37,24 @@ def register():
     # 3.手机号正则验证
     if not re.match(r"1[35678]\d{9}", mobile):
         return jsonify(errno=RET.PARAMERR, errmsg="手机格式不正确")
-    print("手机pass")
     # 4.从redis中通过手机号取出真实的短信验证码
     try:
         real_sms_code = redis_store.get("SMS_" + mobile)
-        print(real_sms_code)
     except Exception as e:
         current_app.logger.error(e)
-        print(11111)
         return jsonify(errno=RET.DBERR, errmsg="数据库查询失败")
 
     # 5.和用户输入的验证码进行校验
     if not real_sms_code:
-        print(2222)
         return jsonify(errno=RET.NODATA, errmsg="短信验证码已过期")
 
     if real_sms_code != smscode:
-        print(33333)
         return jsonify(errno=RET.DATAERR, errmsg="短信验证码输入不正确")
-    print("短信验证pass")
     # 核心代码：6.初始化一个User()对象，并添加数据
     user = User()
     user.nick_name = mobile
-    user.password_hash = password
+    # user.password_hash = generate_password_hash(password)  # 第一种方式为密码加密
+    user.password = password  # 第二种方式调用models.py为密码加密
     user.mobile = mobile
 
     try:
