@@ -1,5 +1,6 @@
 import random
 import re
+from datetime import datetime
 
 from flask import request, abort, current_app, make_response, jsonify, session
 
@@ -11,6 +12,63 @@ from info.utils.response_code import RET
 from info.libs.yuntongxun.sms import CCP
 from info.models import User
 from werkzeug.security import generate_password_hash
+
+
+@passport_blu.route('/login', methods=['POST'])
+def login():
+    """
+    登录功能
+    1.接收参数
+    2.全局校验
+    3.校验手机好格式（正则）
+    4、校验密码
+    5、保持状态
+    6.给前端响应
+
+    :return:
+    """
+    return ""
+    dict_data = request.json
+    mobile = dict_data.get("mobile")
+    passport = dict_data.get("passport")
+
+    if not all([mobile, passport]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数不全")
+
+    if not re.match(r"1[35678]\d{9}", mobile):
+        return jsonify(errno=RET.PARAMERR, errmsg="手机格式不正确")
+
+    try:
+        user = User.query.filter(User.mobile==mobile).first()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据库查询错误")
+
+    if not user:
+        return jsonify(errno=RET.NODATA, errmsg="该用户还未注册")
+
+    # user_password = user.check_passowrd(user.password_hash)
+    # if user_password != passport:
+    if not user.check_passowrd(passport):
+        return jsonify(errno=, errmsg="密码输入错误")
+
+    # 更新最后登录时间
+    user.last_login = datetime.now()
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据库保存失败")
+
+    # 保持用户登录状态
+    session["user_id"] = user.id
+
+    return jsonify(errno=RET.OK, errmsg="登录成功")
+
+
+
+
 
 
 @passport_blu.route('/register', methods=["POST"])
