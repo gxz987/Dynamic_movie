@@ -16,8 +16,8 @@ def get_news_list():
     """
     # 1、接收参数
     cid = request.args.get("cid")
-    page = request.args.get("page")
-    per_page = request.args.get("per_page")
+    page = request.args.get("page", 1)
+    per_page = request.args.get("per_page", 10)
 
     # 2.校验数据
     try:
@@ -29,8 +29,11 @@ def get_news_list():
         return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
 
     # 3、查询数据库
+    filters = []
+    if cid != 1:
+        filters.append(News.category_id==cid)
     try:
-        paginate = News.query.filter(News.category_id==cid).order_by(News.create_time.desc()).paginate(page, per_page, False)
+        paginate = News.query.filter(*filters).order_by(News.create_time.desc()).paginate(page, per_page, False)
     except Exception as e:
         current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg="数据库查询错误")
@@ -39,9 +42,9 @@ def get_news_list():
     current_page = paginate.page    # 当前页数
     total_pages = paginate.pages  # 总页数
 
-    news_dict_list = [news.to_basic_dict() for news in news_list]
+    news_dict_li = [news.to_basic_dict() for news in news_list]
     data = {
-        "news_dict_list":news_dict_list,
+        "news_dict_li":news_dict_li,
         "news_page":current_page,
         "news_pages":total_pages
     }
@@ -88,8 +91,6 @@ def index():
         "clicks_news_li":clicks_news_li,
         "categorys_dict_li":categorys_dict_li
     }
-
-    print(data["categorys_dict_li"])
 
     return render_template("news/index.html", data=data)
 
