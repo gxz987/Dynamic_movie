@@ -1,10 +1,26 @@
-from flask import render_template, redirect, current_app, send_file
+from flask import render_template, redirect, current_app, send_file, session
 from info.modules.index import index_blu
-
+from info.models import User
 
 @index_blu.route('/')
 def index():
-    return render_template("news/index.html")
+    # 首页右上角的实现
+    # 进入首页，需要判断用户是否登录，若已登录，将用户信息显示
+    user_id = session.get("user_id")
+
+    user = None
+    if user_id:
+        try:
+            user = User.query.get(user_id)
+        except Exception as e:
+            current_app.logger.error(e)
+
+    # data = {"user_info":{"nick_name":"guo"}}
+    data = {
+        "user_info":user.to_dict() if user else None
+    }
+
+    return render_template("news/index.html", data=data)
 
 
 @index_blu.route('/favicon.ico')
