@@ -5,7 +5,7 @@ from flask import Flask
 from config import config
 from flask_sqlalchemy import SQLAlchemy
 from redis import StrictRedis
-from flask_wtf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect, generate_csrf
 from flask_session import Session
 
 
@@ -47,7 +47,13 @@ def create_app(config_name):
     redis_store = StrictRedis(host=config[config_name].REDIS_HOST, port=config[config_name].REDIS_PORT,
                               decode_responses=True)
     # 4.集成CSRFProtect
-    # CSRFProtect(app)   # INFO:flask_wtf.csrf:The CSRF token is missing.
+    # 1.先向cookie中添加一个csrf_token
+    @app.after_request
+    def after_request(response):
+        csrf_token = generate_csrf()
+        response.set_cookie("csrf_token", csrf_token)
+        return response
+    CSRFProtect(app)   # INFO:flask_wtf.csrf:The CSRF token is missing.
     # 5.集成flask_session, Session 指定session的保存路径
     Session(app)
 
