@@ -57,6 +57,11 @@ def create_app(config_name):
     # 5.集成flask_session, Session 指定session的保存路径
     Session(app)
 
+    # 注册过滤器
+    from info.utils.common import do_index_class
+    app.add_template_filter(do_index_class, "indexClass")
+
+
     # 注册蓝图
     # 蓝图模块在哪使用就在哪导入，解决循环导入问题
     from info.modules.index import index_blu
