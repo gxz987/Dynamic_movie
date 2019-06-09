@@ -1,6 +1,55 @@
-from flask import render_template, redirect, current_app, send_file, session
+from flask import render_template, redirect, current_app, send_file, session, request, jsonify
 from info.modules.index import index_blu
 from info.models import User, News, Category
+from response_code import RET
+
+
+@index_blu.route("/news_list")
+def get_news_list():
+    """
+    显示新闻列表，因是局部刷新，需要用jsonify返回数据故更改接口
+    1、接收参数 cid  page  per_page
+    2、校验参数是否合法
+    3、查询出新闻（要关系分类）（根据创建时间排序）
+    4、返回响应，及新闻数据
+    :return:
+    """
+    # 1、接收参数
+    cid = request.args.get("cid")
+    page = request.args.get("page")
+    per_page = request.args.get("per_page")
+
+    # 2.校验数据
+    try:
+        cid = int(cid)
+        page = int(page)
+        per_page = int(per_page)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
+
+    # 3、查询数据库
+    try:
+        paginate = News.query.filter(News.category_id==cid).order_by(News.create_time.desc()).paginate(page, per_page, False)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据库查询错误")
+
+    news_list = paginate.items   # 当前页数据
+    current_page = paginate.page    # 当前页数
+    total_pages = paginate.pages  # 总页数
+
+    news_dict_list = [news.to_basic_dict() for news in news_list]
+    data = {
+        "news_dict_list":news_dict_list,
+        "news_page":current_page,
+        "news_pages":total_pages
+    }
+
+    return jsonify(errno=RET.OK, errmsg="OK", data=data)
+
+
+
 
 @index_blu.route('/')
 def index():
