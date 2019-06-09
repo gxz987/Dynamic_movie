@@ -27,7 +27,6 @@ def login():
 
     :return:
     """
-    return ""
     dict_data = request.json
     mobile = dict_data.get("mobile")
     passport = dict_data.get("passport")
@@ -50,7 +49,7 @@ def login():
     # user_password = user.check_passowrd(user.password_hash)
     # if user_password != passport:
     if not user.check_passowrd(passport):
-        return jsonify(errno=, errmsg="密码输入错误")
+        return jsonify(errno=RET.DATAERR, errmsg="密码输入错误")
 
     # 更新最后登录时间
     user.last_login = datetime.now()
@@ -65,10 +64,6 @@ def login():
     session["user_id"] = user.id
 
     return jsonify(errno=RET.OK, errmsg="登录成功")
-
-
-
-
 
 
 @passport_blu.route('/register', methods=["POST"])
