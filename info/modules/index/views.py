@@ -1,4 +1,6 @@
 from flask import render_template, redirect, current_app, send_file, session, request, jsonify
+
+import constants
 from info.modules.index import index_blu
 from info.models import User, News, Category
 from response_code import RET
@@ -70,7 +72,7 @@ def index():
     # 1.显示新闻的点击排行
     clicks_news = []
     try:
-        clicks_news = News.query.order_by(News.clicks.desc()).limit(6) # [news1, news2,...]
+        clicks_news = News.query.order_by(News.clicks.desc()).limit(constants.CLICK_RANK_MAX_NEWS) # [news1, news2,...]
     except Exception as e:
         current_app.logger.error(e)
 
