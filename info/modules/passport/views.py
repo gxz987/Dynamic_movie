@@ -14,6 +14,22 @@ from info.models import User
 from werkzeug.security import generate_password_hash
 
 
+@passport_blu.route('/logout')
+def logout():
+    """
+    退出功能:删除session
+    :return:
+    """
+    session.pop("user_id", None)
+    return jsonify(errno=RET.OK, errmsg="退出成功")
+
+
+
+
+
+
+
+
 @passport_blu.route('/login', methods=['POST'])
 def login():
     """

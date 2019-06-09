@@ -305,3 +305,12 @@ function generateUUID() {
     });
     return uuid;
 }
+
+// 退出功能
+function logout() {
+    $.get("/passport/logout", function (response) {
+        if(response.errno=="0"){
+            location.reload()
+        }
+    })
+}
