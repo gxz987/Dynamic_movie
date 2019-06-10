@@ -42,13 +42,13 @@ def get_news_list():
 
     news_list = paginate.items   # 当前页数据
     current_page = paginate.page    # 当前页数
-    total_pages = paginate.pages  # 总页数
+    total_page = paginate.pages  # 总页数
 
     news_dict_li = [news.to_basic_dict() for news in news_list]
     data = {
         "news_dict_li":news_dict_li,
         "news_page":current_page,
-        "news_pages":total_pages
+        "total_page":total_page
     }
 
     return jsonify(errno=RET.OK, errmsg="OK", data=data)

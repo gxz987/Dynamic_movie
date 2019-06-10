@@ -42,7 +42,18 @@ $(function () {
         var nowScroll = $(document).scrollTop();
 
         if ((canScrollHeight - nowScroll) < 100) {
-            // TODO 判断页数，去更新新闻数据
+            // 判断页数，去更新新闻数据
+            //加载更多数据的条件：1.加载到最后一页了，就不加载了；2.正在加载数据时你加载
+            if(!data_querying){
+                //!data_querying为false不加载数据，true加载数据
+                if(cur_page<total_page){
+                    data_querying=true
+                    cur_page += 1
+                    updateNewsData()
+                }
+            }else{
+                data_querying = false
+            }
         }
     })
 })
@@ -55,9 +66,16 @@ function updateNewsData() {
     }
     $.get("/news_list", params, function (response) {
         if(response.errno=="0"){
+            //在第一次加载时，修改总页数
+            total_page = response.data.total_page
+            // alert(total_page)
+            data_querying = false
             //显示数据
             //先清空所有新闻
-            $(".list_con").html("")
+            // 只有当前页为第一页的时候才去清空数据，第二页不能清空
+            if(cur_page == 1){
+                $(".list_con").html("")
+            }
 
             for (var i=0;i<response.data.news_dict_li.length;i++) {
                 var news = response.data.news_dict_li[i]
