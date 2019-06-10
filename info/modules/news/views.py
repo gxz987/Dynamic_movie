@@ -50,7 +50,7 @@ def news_collect():
 
     # 代码运行到这时，用户存在、新闻也存在
     # 执行具体的业务逻辑
-    if action == "collecgt":
+    if action == "collect":
         # 收藏新闻时，应先判断该用户是否收藏过该条新闻
         if news not in user.collection_news:
             user.collection_news.append(news)
