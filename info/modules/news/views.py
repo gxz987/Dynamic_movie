@@ -1,6 +1,6 @@
 from flask import render_template, session, current_app, g, abort
 
-from info import constants
+from info import constants, db
 from info.utils.common import user_login
 from info.modules.news import news_blu
 from info.models import News
@@ -43,6 +43,13 @@ def detail(news_id):
     # 判断新闻是否存在
     if not news:
         abort(404)
+
+    news.clicks += 1
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(e)
 
     data = {
         "user_info":user.to_dict() if user else None,
