@@ -1,6 +1,7 @@
 from flask import render_template, redirect, current_app, send_file, session, request, jsonify
 
 import constants
+from info.utils.common import user_login
 from info.modules.index import index_blu
 from info.models import User, News, Category
 from response_code import RET
@@ -60,14 +61,7 @@ def get_news_list():
 def index():
     # 首页右上角的实现
     # 进入首页，需要判断用户是否登录，若已登录，将用户信息显示
-    user_id = session.get("user_id")
-
-    user = None
-    if user_id:
-        try:
-            user = User.query.get(user_id)
-        except Exception as e:
-            current_app.logger.error(e)
+    user = user_login()
 
     # 1.显示新闻的点击排行
     clicks_news = []
