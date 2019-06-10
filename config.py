@@ -20,6 +20,8 @@ class Config(object):
     # 设置session的过期时间
     PERMANENT_SESSION_LIFETIME = 86400 * 2
 
+    # 设置数据库的默认提交
+    SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 
 class DevelopConfig(Config):
     """开发模式"""
