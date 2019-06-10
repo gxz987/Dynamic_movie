@@ -51,9 +51,17 @@ def detail(news_id):
         db.session.rollback()
         current_app.logger.error(e)
 
+    # 新闻详情页面收藏和已收藏  is_collected 进行标记
+    is_collected = False
+    # 用户已收藏的话把is_collected设置为True
+    # 设置为True的条件：1.用户存在（已登录），2.新闻存在，3.该条新闻在用户收藏新闻的列表中
+    if user and news in user.collection_news.all():
+        is_collected = True
+
     data = {
         "user_info":user.to_dict() if user else None,
         "clicks_news_li":clicks_news_li,
-        "news":news.to_dict()
+        "news":news.to_dict(),
+        "is_collected":is_collected
     }
     return render_template("news/detail.html", data=data)
