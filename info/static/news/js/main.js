@@ -125,7 +125,7 @@ $(function () {
             "passport":password
         }
         $.ajax({
-            url:"passport/login",
+            url:"/passport/login",
             type:"post",
             contentType:"application/json",
             headers: {
