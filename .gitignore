@@ -2,5 +2,6 @@
 *.py[cod]
 logs/log*
 migrations/
-index_yuan.html
-detail_yuan.html
+index_yuan\.html
+detail_yuan\.html
+*.DS_Store
