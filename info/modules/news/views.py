@@ -173,10 +173,20 @@ def detail(news_id):
     if user and news in user.collection_news.all():
         is_collected = True
 
+    comments = []
+    try:
+        comments = Comment.query.filter(Comment.news_id == news_id).order_by(Comment.create_time.desc()).all()
+    except Exception as e:
+        current_app.logger.error(e)
+
+    comments_dict_li = [comment.to_dict() for comment in comments]
+    print(comments_dict_li)
+
     data = {
         "user_info":user.to_dict() if user else None,
         "clicks_news_li":clicks_news_li,
         "news":news.to_dict(),
-        "is_collected":is_collected
+        "is_collected":is_collected,
+        "comments_dick_li":comments_dict_li
     }
     return render_template("news/detail.html", data=data)
