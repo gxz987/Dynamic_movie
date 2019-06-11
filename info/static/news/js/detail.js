@@ -127,6 +127,7 @@ $(function () {
                     $('.comment_sub').blur();
                     // 清空输入框内容
                     $(".comment_input").val("")
+                    $(".comment_count").html(resp.comment_count+"条评论")
                 }else {
                     alert(resp.errmsg)
                 }
@@ -219,6 +220,7 @@ $(function () {
                         $this.prev().val('')
                         // 关闭
                         $this.parent().hide()
+                        $(".comment_count").html(resp.comment_count+"条评论")
                     }else {
                         alert(resp.errmsg)
                     }
