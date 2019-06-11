@@ -166,17 +166,27 @@ def detail(news_id):
         db.session.rollback()
         current_app.logger.error(e)
 
-    # 新闻详情页面收藏和已收藏  is_collected 进行标记
+    # 3.新闻详情页面收藏和已收藏  is_collected 进行标记
     is_collected = False
     # 用户已收藏的话把is_collected设置为True
     # 设置为True的条件：1.用户存在（已登录），2.新闻存在，3.该条新闻在用户收藏新闻的列表中
     if user and news in user.collection_news.all():
         is_collected = True
 
+    # 4.查询当前新闻新闻下的所有的评论，按时间的降序
+    comments = []
+    try:
+        comments = Comment.query.filter(Comment.news_id==news_id).order_by(Comment.create_time.desc()).all()
+    except Exception as e:
+        current_app.logger.error(e)
+
+    comments_dict_li = [comment.to_dict() for comment in comments]
+
     data = {
         "user_info":user.to_dict() if user else None,
         "clicks_news_li":clicks_news_li,
         "news":news.to_dict(),
-        "is_collected":is_collected
+        "is_collected":is_collected,
+        "comments_dict_li":comments_dict_li
     }
     return render_template("news/detail.html", data=data)
