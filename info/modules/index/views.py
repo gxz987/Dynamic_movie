@@ -11,7 +11,7 @@ from response_code import RET
 def get_news_list():
     """
     显示新闻列表，因是局部刷新，需要用jsonify返回数据故更改接口
-    1、接收参数 cid  page  per_page
+    1、接收参数 cid(f分类id,必须)  page  per_page
     2、校验参数是否合法
     3、查询出新闻（要关系分类）（根据创建时间排序）
     4、返回响应，及新闻数据

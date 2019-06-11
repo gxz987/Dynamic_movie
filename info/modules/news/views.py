@@ -3,8 +3,67 @@ from flask import render_template, session, current_app, g, abort, jsonify, requ
 from info import constants, db
 from info.utils.common import user_login
 from info.modules.news import news_blu
-from info.models import News, User
+from info.models import News, User, Comment
 from response_code import RET
+
+
+@news_blu.route("/news_comment", methods=["POST"])
+@user_login
+def set_news_comment():
+    """
+    新闻评论
+    1.接收参数：new_id(必须), comment(必须), parent_id(非必须)
+    2.校验参数
+    3.初始化一个评论模型，并赋值
+    4.返回相应，把相关评论返回及评论数
+    :return:
+    """
+    user = g.user
+    if not user:
+        return jsonify(errno=RET.SESSIONERR, errmsg="用户未登录")
+    # 1.接收参数
+    news_id = request.json.get("news_id")
+    comment_str = request.json.get("comment")
+    parent_id = request.json.get("parent_id")
+
+    # 2.判断参数
+    if not all([news_id, comment_str]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
+
+    try:
+        news_id = int(news_id)
+        if parent_id:
+            parent_id = int(parent_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
+
+    # 3.查询新闻，并判断新闻是否存在
+    try:
+        news = News.query.get(news_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据库查询错误")
+    if not news:
+        return jsonify(errno=RET.NODATA, errmsg="未查询到新闻数据")
+
+    # 4.初始化一个评论模型，并赋值
+    comment = Comment()
+    comment.user_id = user.id
+    comment.news_id = news_id
+    comment.content = comment_str
+    try:
+        db.session.add(comment)
+        db.session.commit()
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据库保存失败")
+
+    # 查询出该条新闻下的评论条数
+    comment_count = Comment.query.filter(Comment.news_id == news_id).count()
+
+    return jsonify(errno=RET.OK, errmsg="OK", data=comment.to_dict(), comment_count=comment_count)
+
 
 
 @news_blu.route("/news_collect", methods=["POST"])
