@@ -187,6 +187,6 @@ def detail(news_id):
         "clicks_news_li":clicks_news_li,
         "news":news.to_dict(),
         "is_collected":is_collected,
-        "comments":comments_dict_li
+        "comments_dict_li":comments_dict_li
     }
     return render_template("news/detail.html", data=data)
