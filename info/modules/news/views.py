@@ -251,7 +251,11 @@ def detail(news_id):
     comments_dict_li = []
     for comment in comments:
         comment_dict = comment.to_dict()
+        comment_dict["is_like"] = False
+        if user and CommentLike.query.filter(CommentLike.comment_id == comment.id, CommentLike.user_id == user.id).first():
+            comment_dict["is_like"] = True
         comments_dict_li.append(comment_dict)
+
     data = {
         "user_info":user.to_dict() if user else None,
         "clicks_news_li":clicks_news_li,
