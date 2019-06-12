@@ -3,8 +3,71 @@ from flask import render_template, session, current_app, g, abort, jsonify, requ
 from info import constants, db
 from info.utils.common import user_login
 from info.modules.news import news_blu
-from info.models import News, User, Comment
+from info.models import News, User, Comment, CommentLike
 from response_code import RET
+
+
+@news_blu.route("/comment_like", methods=["POST"])
+def set_comment_like():
+    """
+    评论的点赞和取消点赞功能
+    1.接收参数： comment_id  action(add,remove其中之一)
+    2.参数校验
+    3.CommentLike()点赞表中添加或删除一条数据；业务逻辑
+    4.返回响应
+    :return:
+    """
+    user = g.user
+    if not user:
+        return jsonify(errno=RET.SESSIONERR, errmsg="用户未登录")
+
+    comment_id = request.json.get("comment_id")
+    action = request.json.get("action")
+
+    if not all([]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
+
+    try:
+        comment_id = int(comment_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
+
+    if action not in ["add", "remove"]:
+        return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
+
+    try:
+        comment = Comment.query.get(comment_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据库查询错误")
+    if not comment:
+        return jsonify(errno=RET.NODATA, errmsg="新闻不存在")
+
+    # 业务逻辑
+    comment_like_obj = CommentLike.query.filter(CommentLike.comment_id==comment_id, CommentLike.user_id==user.id).first()
+
+    if action == "add":
+        if not comment_like_obj:
+            # 初始化一个点赞对象
+            comment_like = CommentLike()
+            comment_like.comment_id = comment_id
+            comment_like.user_id = user.id
+            db.session.add(comment_like)
+            comment.like_count += 1
+    else:
+        if comment_like_obj:
+            db.session.delete(comment_like_obj)
+            comment.like_count -= 1
+
+    try:
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据库保存失败")
+
+    return jsonify(errno=RET.OK, errmsg="OK")
 
 
 @news_blu.route("/news_comment", methods=["POST"])
