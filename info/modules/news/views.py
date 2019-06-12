@@ -252,6 +252,8 @@ def detail(news_id):
     for comment in comments:
         comment_dict = comment.to_dict()
         comment_dict["is_like"] = False
+        # 如果comment_dict["is_like"] = True 代表已经点赞
+        # 如果该用户存在，并且通过该用户和该条评论查询点赞，如果有值 True
         if user and CommentLike.query.filter(CommentLike.comment_id == comment.id, CommentLike.user_id == user.id).first():
             comment_dict["is_like"] = True
         comments_dict_li.append(comment_dict)
