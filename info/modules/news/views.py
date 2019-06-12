@@ -8,6 +8,7 @@ from response_code import RET
 
 
 @news_blu.route("/comment_like", methods=["POST"])
+@user_login
 def set_comment_like():
     """
     评论的点赞和取消点赞功能
@@ -246,8 +247,11 @@ def detail(news_id):
     except Exception as e:
         current_app.logger.error(e)
 
-    comments_dict_li = [comment.to_dict() for comment in comments]
-
+    # comments_dict_li = [comment.to_dict() for comment in comments]
+    comments_dict_li = []
+    for comment in comments:
+        comment_dict = comment.to_dict()
+        comments_dict_li.append(comment_dict)
     data = {
         "user_info":user.to_dict() if user else None,
         "clicks_news_li":clicks_news_li,
