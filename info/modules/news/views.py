@@ -52,10 +52,13 @@ def set_news_comment():
     comment.user_id = user.id
     comment.news_id = news_id
     comment.content = comment_str
+    if parent_id:
+        comment.parent_id = parent_id
     try:
         db.session.add(comment)
         db.session.commit()
     except Exception as e:
+        db.session.rollback()
         current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg="数据库保存失败")
 
@@ -180,13 +183,13 @@ def detail(news_id):
         current_app.logger.error(e)
 
     comments_dict_li = [comment.to_dict() for comment in comments]
-    print(comments_dict_li)
 
     data = {
         "user_info":user.to_dict() if user else None,
         "clicks_news_li":clicks_news_li,
         "news":news.to_dict(),
         "is_collected":is_collected,
-        "comments_dick_li":comments_dict_li
+        "comments_dict_li":comments_dict_li
     }
+
     return render_template("news/detail.html", data=data)
