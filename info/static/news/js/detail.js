@@ -17,28 +17,7 @@ $(function () {
             "news_id": $(this).attr('data-newid'),
             "action": "collect"
         }
-        $.ajax({
-            url: "/news/news_collect",
-            type: "post",
-            contentType: "application/json",
-            headers: {
-                "X-CSRFToken": getCookie("csrf_token")
-            },
-            data: JSON.stringify(params),
-            success: function (resp) {
-                if (resp.errno == "0") {
-                    // 收藏成功
-                    // 隐藏收藏按钮
-                    $(".collection").hide();
-                    // 显示取消收藏按钮
-                    $(".collected").show();
-                }else if (resp.errno == "4101"){
-                    $('.login_form_con').show();
-                }else{
-                    alert(resp.errmsg);
-                }
-            }
-        })
+        collection_ajax(params)
     })
 
     // 取消收藏
@@ -47,28 +26,7 @@ $(function () {
             "news_id": $(this).attr('data-newid'),
             "action": "cancel_collect"
         }
-        $.ajax({
-            url: "/news/news_collect",
-            type: "post",
-            contentType: "application/json",
-            headers: {
-                "X-CSRFToken": getCookie("csrf_token")
-            },
-            data: JSON.stringify(params),
-            success: function (resp) {
-                if (resp.errno == "0") {
-                    // 收藏成功
-                    // 隐藏收藏按钮
-                    $(".collection").show();
-                    // 显示取消收藏按钮
-                    $(".collected").hide();
-                }else if (resp.errno == "4101"){
-                    $('.login_form_con').show();
-                }else{
-                    alert(resp.errmsg);
-                }
-            }
-        })
+        collection_ajax(params)
     })
 
     // 评论提交
@@ -239,3 +197,33 @@ $(function () {
 
     })
 })
+
+function collection_ajax(params) {
+    $.ajax({
+        url: "/news/news_collect",
+        type: "post",
+        contentType: "application/json",
+        headers: {
+            "X-CSRFToken": getCookie("csrf_token")
+        },
+        data: JSON.stringify(params),
+        success: function (resp) {
+            if (resp.errno == "0") {
+                // 收藏成功
+                if(params["action"]=="collect"){
+                    $(".collection").hide();
+                    // 显示取消收藏按钮
+                    $(".collected").show();
+                }else{
+                    $(".collection").show();
+                    // 显示收藏按钮
+                    $(".collected").hide();
+                }
+            } else if (resp.errno == "4101") {
+                $('.login_form_con').show();
+            } else {
+                alert(resp.errmsg);
+            }
+        }
+    })
+}
