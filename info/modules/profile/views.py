@@ -6,7 +6,7 @@ from info.modules.profile import profile_blu
 from response_code import RET
 
 
-@profile_blu.route("/user_base_info", methods=["POST"])
+@profile_blu.route("/user_base_info", methods=["GET", "POST"])
 @user_login
 def user_base_info():
     """
@@ -42,7 +42,6 @@ def user_base_info():
         db.session.rollback()
         current_app.logger.error(e)
         return jsonify(errno=RET.DBERR, errmsg="数据库保存失败")
-
     return jsonify(errno=RET.OK, errmsg="OK", data=user.to_dict())
 
 
