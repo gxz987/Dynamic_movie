@@ -9,7 +9,7 @@ access_key = 'n1gKo9iDzko8yrck9Zw-XyJochVHsnBWPWlbkpju'
 secret_key = 'SRCV6wb1By71OnM0VHvcHbl_M3R8GmpJ_LRmWCCU'
 
 # 要上传的空间
-bucket_name = 'ihome'
+bucket_name = 'avatar'
 
 
 def storage(data):
