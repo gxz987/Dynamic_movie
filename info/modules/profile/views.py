@@ -6,6 +6,22 @@ from info.modules.profile import profile_blu
 from response_code import RET
 
 
+@profile_blu.route("/user_pic_info", methods=["GET", "POST"])
+@user_login
+def user_pic_info():
+    """
+    用户头像设置
+    :return:
+    """
+    user = g.user
+    data = {
+        "user_info":user.to_dict()
+    }
+    return render_template("news/user_pic_info.html", data=data)
+
+
+
+
 @profile_blu.route("/user_base_info", methods=["GET", "POST"])
 @user_login
 def user_base_info():
