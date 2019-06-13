@@ -22,8 +22,10 @@
         {% endblock %}
         {% if data.user_info %}
             <div class="user_login fr">
-                <img src="{% if data.user_info.avatar_url %}{{ data.user_info.avatar_url }}{% endif %}../../static/news/images/person01.png" class="lgin_pic">
-                <a href="#">{{ data.user_info.nick_name }}</a>
+                <a href="/user/info">
+                    <img src="{% if data.user_info.avatar_url %}{{ data.user_info.avatar_url }}{% endif %}../../static/news/images/person01.png" class="lgin_pic">
+                </a>
+                <a href="/user/info">{{ data.user_info.nick_name }}</a>
                 <a href="javascript:;" onclick="logout()">退出</a>
             </div>
         {% else %}
@@ -39,23 +41,26 @@
     {% block contentBlock %}
 
     {% endblock %}
-    <div class="rank_con fr">
-        {% block authorBlck %}
+    {% block rankBlock %}
+        <div class="rank_con fr">
+            {% block authorBlck %}
 
-        {% endblock %}
-        <div class="rank_title">
-            <h3>点击排行</h3>
+            {% endblock %}
+            <div class="rank_title">
+                <h3>点击排行</h3>
+            </div>
+            <ul class="rank_list">
+                {% for news in data.clicks_news_li %}
+    {#                两种方法#}
+                    <li><span class="{{ loop.index | indexClass }}">{{ loop.index }}</span><a href="news/{{ news.id }}">{{ news.title }}</a></li>
+    {#                <li><span class="{{ loop.index | indexClass }}">{{ loop.index }}</span><a href="{{ url_for("news.detail", news_id=news.id) }}">{{ news.title }}</a></li>#}
+
+                {% endfor %}
+
+            </ul>
         </div>
-        <ul class="rank_list">
-            {% for news in data.clicks_news_li %}
-{#                两种方法#}
-                <li><span class="{{ loop.index | indexClass }}">{{ loop.index }}</span><a href="news/{{ news.id }}">{{ news.title }}</a></li>
-{#                <li><span class="{{ loop.index | indexClass }}">{{ loop.index }}</span><a href="{{ url_for("news.detail", news_id=news.id) }}">{{ news.title }}</a></li>#}
+    {% endblock %}
 
-            {% endfor %}
-
-        </ul>
-    </div>
 </div>
 <div class="footer">
     <div class="footer_links">
