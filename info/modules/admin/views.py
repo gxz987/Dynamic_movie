@@ -28,6 +28,11 @@ def login():
     :return:
     """
     if request.method == "GET":
+        # 在get请求中，先从session中去user_id和is_admin，如能取到，直接重定向到首页
+        user_id = session.get("user_id")
+        is_admin = session.get("is_admin")
+        if user_id and is_admin:
+            return redirect(url_for("admin.index"))
         return render_template("admin/login.html")
 
     username = request.form.get("username")
