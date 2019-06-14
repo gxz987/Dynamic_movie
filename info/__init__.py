@@ -1,7 +1,9 @@
 import logging
 from logging.handlers import RotatingFileHandler
 
-from flask import Flask
+from flask import Flask, render_template, g
+
+from common import user_login
 from config import config
 from flask_sqlalchemy import SQLAlchemy
 from redis import StrictRedis
@@ -53,6 +55,29 @@ def create_app(config_name):
         csrf_token = generate_csrf()
         response.set_cookie("csrf_token", csrf_token)
         return response
+
+
+    @app.errorhandler(404)
+    @user_login
+    def get_404_error(e):
+        """
+        捕获404错误
+        :return:
+        """
+        # user = g.user
+        # if user:
+        #     data = {
+        #         "user_info":user.to_dict()
+        #     }
+        # else:
+        #     data = {}
+        data = {
+            "user_info":g.user.to_dict() if g.user else None
+        }
+
+        return render_template("news/404.html", data=data)
+
+
     CSRFProtect(app)   # INFO:flask_wtf.csrf:The CSRF token is missing.
     # 5.集成flask_session, Session 指定session的保存路径
     Session(app)
