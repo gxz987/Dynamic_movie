@@ -5,11 +5,13 @@ import logging
 from qiniu import Auth, put_data
 
 # 需要填写你的 Access Key 和 Secret Key
-access_key = 'n1gKo9iDzko8yrck9Zw-XyJochVHsnBWPWlbkpju'
-secret_key = 'SRCV6wb1By71OnM0VHvcHbl_M3R8GmpJ_LRmWCCU'
+# access_key = 'n1gKo9iDzko8yrck9Zw-XyJochVHsnBWPWlbkpju'
+access_key = 'EMocUVl59KJYosIZlj39dCQYasPdE5siucXjqFRK'
+# secret_key = 'SRCV6wb1By71OnM0VHvcHbl_M3R8GmpJ_LRmWCCU'
+secret_key = 'CyHT-VEG5Pc54ii14XnwrNEbsm_xtyZVGRF6SWoa'
 
 # 要上传的空间
-bucket_name = 'avatar'
+bucket_name = 'gxz987'
 
 
 def storage(data):

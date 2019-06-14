@@ -36,7 +36,13 @@ def user_news_release():
     content = request.form.get("content")
 
     if not all([title, category_id, digest, index_image, content]):
-        return jsonify()
+        return jsonify(errno=RET.PARAMERR, errmsg="参数不全")
+    try:
+        category_id = int(category_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
+
 
 
 
