@@ -4,7 +4,42 @@ from info import db, constants
 from info.utils.common import user_login
 from info.modules.profile import profile_blu
 from libs.image_storage import storage
+from info.models import Category
 from response_code import RET
+
+
+@profile_blu.route("/user_news_release", methods=["GET", "POST"])
+@user_login
+def user_news_release():
+    """
+    用户发布新闻
+    :return:
+    """
+    user = g.user
+    if request.method == "GET":
+        categories = []
+        try:
+            categories = Category.query.all()
+        except Exception as e:
+            current_app.logger.error(e)
+        category_dict_li = [category.to_dict() for category in categories]
+        category_dict_li.pop(0)
+        data = {
+            "category_dict_li":category_dict_li
+        }
+        return render_template("news/user_news_release.html", data=data)
+
+    title = request.form.get("title")
+    category_id = request.form.get("category_id")
+    digest = request.form.get("digest")
+    index_image = request.file.get("index_image")
+    content = request.form.get("content")
+
+    if not all([title, category_id, digest, index_image, content]):
+        return jsonify()
+
+
+
 
 
 @profile_blu.route("/user_collection")
