@@ -3,7 +3,7 @@ from logging.handlers import RotatingFileHandler
 
 from flask import Flask, render_template, g
 
-from common import user_login
+from info.utils.common import user_login
 from config import config
 from flask_sqlalchemy import SQLAlchemy
 from redis import StrictRedis
@@ -97,5 +97,7 @@ def create_app(config_name):
     app.register_blueprint(news_blu)
     from info.modules.profile import profile_blu
     app.register_blueprint(profile_blu)
+    from info.modules.admin import admin_blu
+    app.register_blueprint(admin_blu)
 
     return app

@@ -3,9 +3,9 @@ from flask import render_template, g, request, jsonify, current_app
 from info import db, constants
 from info.utils.common import user_login
 from info.modules.profile import profile_blu
-from libs.image_storage import storage
+from info.libs.image_storage import storage
 from info.models import Category, News
-from response_code import RET
+from info.utils.response_code import RET
 
 
 @profile_blu.route('/user_news_list')

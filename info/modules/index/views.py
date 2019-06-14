@@ -1,10 +1,10 @@
 from flask import render_template, redirect, current_app, send_file, session, request, jsonify, g
 
-import constants
+from info import constants
 from info.utils.common import user_login
 from info.modules.index import index_blu
 from info.models import User, News, Category
-from response_code import RET
+from info.utils.response_code import RET
 
 
 @index_blu.route("/news_list")

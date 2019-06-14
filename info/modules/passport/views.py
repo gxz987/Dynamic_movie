@@ -4,7 +4,7 @@ from datetime import datetime
 
 from flask import request, abort, current_app, make_response, jsonify, session
 
-import constants
+from info import constants
 from info import redis_store, db
 from info.modules.passport import passport_blu
 from info.utils.captcha.captcha import captcha

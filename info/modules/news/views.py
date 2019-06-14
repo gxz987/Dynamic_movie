@@ -4,7 +4,7 @@ from info import constants, db
 from info.utils.common import user_login
 from info.modules.news import news_blu
 from info.models import News, User, Comment, CommentLike
-from response_code import RET
+from info.utils.response_code import RET
 
 
 @news_blu.route("/comment_like", methods=["POST"])
