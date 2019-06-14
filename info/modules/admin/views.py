@@ -1,7 +1,24 @@
-from flask import render_template, request, current_app, session
+from flask import render_template, request, current_app, session, url_for, redirect, g
 
+from info.utils.common import user_login
 from info.modules.admin import admin_blu
 from info.models import User
+
+
+@admin_blu.route('/index')
+@user_login
+def index():
+    """
+    后台管理首页
+    :return:
+    """
+    user = g.user
+    data = {
+        "user_info": user.to_dict()
+    }
+    return render_template("admin/index.html", data=data)
+
+
 
 
 @admin_blu.route("/login", methods=["GET", "POST"])
@@ -31,4 +48,4 @@ def login():
     session["user_id"] = user.id
     session["is_admin"] = user.is_admin
 
-    return "登录成功"
+    return redirect(url_for("admin.index"))
