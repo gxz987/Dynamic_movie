@@ -4,7 +4,48 @@ from flask import render_template, request, current_app, session, url_for, redir
 from info import constants
 from info.utils.common import user_login
 from info.modules.admin import admin_blu
-from info.models import User
+from info.models import User, News
+
+
+@admin_blu.route("/news_review")
+def news_review():
+    """
+    新闻审核
+    :return:
+    """
+    page = request.args.get("page", 1)
+    keywords = request.args.get("keywords", None)
+    try:
+        page = int(page)
+    except Exception as e:
+        current_app.logger.error(e)
+        page = 1
+
+    news_list = []
+    current_page = 1
+    total_page = 1
+    filters = [News.status != 0]
+    # 如果关键字存在，那么就添加关键字搜索
+    if keywords:
+        filters.append(News.title.contains(keywords))
+    try:
+        paginate = News.query.filter(*filters).order_by(News.create_time.desc()).paginate(page,
+                                                                                          constants.ADMIN_NEWS_PAGE_MAX_COUNT,
+                                                                                          False)
+        news_list = paginate.items
+        current_page = paginate.page
+        total_page = paginate.pages
+    except Exception as e:
+        current_app.logger.error(e)
+
+    news_dict_li = [news.to_review_dict() for news in news_list]
+    data = {
+        "news_dict_li": news_dict_li,
+        "current_page": current_page,
+        "total_page": total_page
+    }
+
+    return render_template("admin/news_review.html", data=data)
 
 
 @admin_blu.route("/user_list")
@@ -105,7 +146,6 @@ def user_count():
     }
 
     return render_template("admin/user_count.html", data=data)
-
 
 
 @admin_blu.route('/index')
