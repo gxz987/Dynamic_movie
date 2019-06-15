@@ -1,16 +1,54 @@
 import datetime
-from flask import render_template, request, current_app, session, url_for, redirect, g
+from flask import render_template, request, current_app, session, url_for, redirect, g, jsonify
 
 from info import constants
 from info.utils.common import user_login
 from info.modules.admin import admin_blu
 from info.models import User, News
+from info.utils.response_code import RET
+
+
+@admin_blu.route("/news_review_action", methods=["POST"])
+def news_review_action():
+    """
+    新闻审核
+    :return:
+    """
+    news_id = request.json.get("news_id")
+    action = request.json.get("action")
+
+    if not all([news_id, action]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数不全")
+    if action not in ["accept", "reject"]:
+        return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
+
+    # 查询到指定的新闻数据
+    try:
+        news = News.query.get(news_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据库查询失败")
+    if not news:
+        return jsonify(errno=RET.NODATA, errmsg="未查询到数据")
+
+    if action == "accept":
+        # 代表审核通过
+        news.status = 0
+    else:
+        # 代表拒绝通过
+        reason = request.json.get("reason")
+        if not reason:
+            return jsonify(errno=RET.PARAMERR, errmsg="请输入拒绝通过的原因")
+        news.status = -1
+        news.reason = reason
+
+    return jsonify(errno=RET.OK, errmsg="OK")
 
 
 @admin_blu.route("/news_review_detail/<int:news_id>")
 def news_review_detail(news_id):
     """
-    新闻审核新闻详情页面
+    新闻审核新闻详情页面的渲染
     :param news_id:
     :return:
     """
@@ -21,7 +59,7 @@ def news_review_detail(news_id):
         current_app.logger.error(e)
     if not news:
         return render_template("admin/news_review_detail.html", data={"errmsg": "新闻未查到"})
-
+    print(news)
     data = {
         "news": news.to_dict()
     }
@@ -61,6 +99,7 @@ def news_review():
         current_app.logger.error(e)
 
     news_dict_li = [news.to_review_dict() for news in news_list]
+    print(news_dict_li)
     data = {
         "news_dict_li": news_dict_li,
         "current_page": current_page,
