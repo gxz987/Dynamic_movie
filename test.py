@@ -3,7 +3,7 @@ import random
 
 from info import db
 from info.models import User
-from manager import app
+from manage import app
 
 
 def add_test_users():
