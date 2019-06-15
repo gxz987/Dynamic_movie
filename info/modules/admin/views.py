@@ -7,6 +7,28 @@ from info.modules.admin import admin_blu
 from info.models import User, News
 
 
+@admin_blu.route("/news_review_detail/<int:news_id>")
+def news_review_detail(news_id):
+    """
+    新闻审核新闻详情页面
+    :param news_id:
+    :return:
+    """
+    news = None
+    try:
+        news = News.query.get(news_id)
+    except Exception as e:
+        current_app.logger.error(e)
+    if not news:
+        return render_template("admin/news_review_detail.html", data={"errmsg": "新闻未查到"})
+
+    data = {
+        "news": news.to_dict()
+    }
+
+    return render_template("admin/news_review_detail.html", data=data)
+
+
 @admin_blu.route("/news_review")
 def news_review():
     """
