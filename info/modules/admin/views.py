@@ -1,11 +1,47 @@
 import datetime
-from flask import render_template, request, current_app, session, url_for, redirect, g, jsonify
+from flask import render_template, request, current_app, session, url_for, redirect, g, jsonify, abort
 
 from info import constants
 from info.utils.common import user_login
 from info.modules.admin import admin_blu
-from info.models import User, News
+from info.models import User, News, Category
 from info.utils.response_code import RET
+
+
+@admin_blu.route("/news_edit_detail")
+def news_edit_detail():
+    """新闻编辑详情"""
+    news_id = request.args.get("news_id")
+    if not news_id:
+        abort(404)
+    try:
+        news_id = int(news_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return render_template("admin/news_edit_detail.html", errmsg="参数错误")
+    try:
+        news = News.query.get(news_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return render_template("admin/news_edit_detail.html", errmsg="数据查询失败")
+    if not news:
+        return render_template("admin/news_edit_detail.html", errmsg="未查询到该新闻")
+
+    # 查询分类数据
+    try:
+        categories = Category.query.all()
+    except Exception as e:
+        current_app.logger.error(e)
+        return render_template("admin/news_edit_detail.html", errmsg="查询数据错误")
+
+    category_dict_li = [category.to_dict() for category in categories]
+    category_dict_li.pop(0)
+    data = {
+        "news": news.to_dict(),
+        "category_dict_li": category_dict_li
+    }
+
+    return render_template("admin/news_edit_detail.html", data=data)
 
 
 @admin_blu.route("/news_edit")
