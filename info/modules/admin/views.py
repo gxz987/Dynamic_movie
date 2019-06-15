@@ -1,9 +1,44 @@
 import datetime
 from flask import render_template, request, current_app, session, url_for, redirect, g
 
+from info import constants
 from info.utils.common import user_login
 from info.modules.admin import admin_blu
 from info.models import User
+
+
+@admin_blu.route("/user_list")
+def user_list():
+    """
+    用户列表
+    :return:
+    """
+    page = request.args.get("page", 1)
+    try:
+        page = int(page)
+    except Exception as e:
+        current_app.logger.error(e)
+        page = 1
+
+    users = []
+    current_page = 1
+    total_page = 1
+    try:
+        paginate = User.query.filter(User.is_admin == 0).paginate(page, constants.ADMIN_USER_PAGE_MAX_COUNT, False)
+        users = paginate.items
+        current_page = paginate.page
+        total_page = paginate.pages
+    except Exception as e:
+        current_app.logger.error(e)
+    user_dict_li = [user.to_admin_dict() for user in users]  # 需要用到注册时间和最后一次登录时间
+
+    data = {
+        "user_dict_li": user_dict_li,
+        "current_page": current_page,
+        "total_page": total_page
+    }
+
+    return render_template("admin/user_list.html", data=data)
 
 
 @admin_blu.route("/user_count")
