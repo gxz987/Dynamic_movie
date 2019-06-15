@@ -20,6 +20,7 @@ def logout():
     退出功能:删除session
     :return:
     """
+    session.pop("is_admin", None)
     session.pop("user_id", None)
     return jsonify(errno=RET.OK, errmsg="退出成功")
 

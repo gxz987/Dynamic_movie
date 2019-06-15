@@ -19,8 +19,6 @@ def index():
     return render_template("admin/index.html", data=data)
 
 
-
-
 @admin_blu.route("/login", methods=["GET", "POST"])
 def login():
     """
