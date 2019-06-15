@@ -39,10 +39,34 @@ def user_count():
     except Exception as e:
         current_app.logger.error(e)
 
+    # 4.折线图数据
+    active_date = []
+    active_count = []
+    # 取到今天的时间字符串
+    today_date_str = "%d-%02d-%02d" % (t.year, t.month, t.day)
+    # 转成时间对象
+    today_date = datetime.datetime.strptime(today_date_str, "%Y-%m-%d")
+
+    for i in range(31):
+        # 取到某一天的０点０分
+        begin_date = today_date - datetime.timedelta(days=i - 0)
+        # 取到下一天的０点０分
+        end_date = today_date - datetime.timedelta(days=i - 1)
+        count = User.query.filter(User.is_admin == 0,
+                                  User.last_login >= begin_date,
+                                  User.last_login < end_date).count()
+        begin_date_str = begin_date.strftime("%Y-%m-%d")
+        active_count.append(count)
+        active_date.append(begin_date_str)
+    active_date.reverse()
+    active_count.reverse()
+
     data = {
         "total_count": total_count,
         "month_count": month_count,
-        "day_count": day_count
+        "day_count": day_count,
+        "active_count": active_count,
+        "active_date": active_date
     }
 
     return render_template("admin/user_count.html", data=data)
