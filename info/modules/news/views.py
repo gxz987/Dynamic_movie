@@ -240,6 +240,17 @@ def detail(news_id):
     if user and news in user.collection_news.all():
         is_collected = True
 
+    # 用户关注作者
+    is_followed = False
+    author = news.user
+    if user and author:
+        # 如果user在作者的粉丝中
+        if user in author.followers:
+            is_followed = True
+            # # 如果作者这用户的
+            # if author in user.followed:
+            #     is_followed = True
+
     # 4.查询当前新闻下的所有的评论，按时间降序排列
     comments = []
     try:
@@ -263,7 +274,8 @@ def detail(news_id):
         "clicks_news_li":clicks_news_li,
         "news":news.to_dict(),
         "is_collected":is_collected,
-        "comments_dict_li":comments_dict_li
+        "comments_dict_li": comments_dict_li,
+        "is_followed": is_followed
     }
 
     return render_template("news/detail.html", data=data)
