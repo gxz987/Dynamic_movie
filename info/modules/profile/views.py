@@ -8,6 +8,40 @@ from info.models import Category, News
 from info.utils.response_code import RET
 
 
+@profile_blu.route("/user_follow")
+@user_login
+def user_follow():
+    """我的关注"""
+    page = request.args.get("page", 1)
+    try:
+        page = int(page)
+    except Exception as e:
+        current_app.logger.error(e)
+        page = 1
+
+    user = g.user
+    follows = []
+    current_page = 1
+    total_page = 1
+    try:
+        paginate = user.followed.paginate(page, constants.USER_FOLLOWED_MAX_COUNT, False)
+        follows = paginate.items
+        current_page = paginate.page
+        total_page = paginate.pages
+    except Exception as e:
+        current_app.logger.error(e)
+
+    user_dict_li = [follow_user.to_dict() for follow_user in follows]
+
+    data = {
+        "users": user_dict_li,
+        "current_page": current_page,
+        "total_page": total_page
+    }
+
+    return render_template("news/user_follow.html", data=data)
+
+
 @profile_blu.route('/user_news_list')
 @user_login
 def user_news_list():

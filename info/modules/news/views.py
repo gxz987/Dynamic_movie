@@ -7,6 +7,49 @@ from info.models import News, User, Comment, CommentLike
 from info.utils.response_code import RET
 
 
+@news_blu.route("/followed_user", methods=["POST"])
+@user_login
+def followed_user():
+    """关注和取消关注用户"""
+    user = g.user
+    if not user:
+        return jsonify(errno=RET.SESSIONERR, errmsg="用户未登录")
+
+    # 获取参数
+    user_id = request.json.get("user_id")
+    action = request.json.get("action")
+
+    if not all([user_id, action]):
+        return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
+    if action not in ["follow", "unfollow"]:
+        return jsonify(errno=RET.PARAMERR, errmsg="参数错误")
+
+    # 取到要被关注的用户
+    try:
+        author = User.query.get(user_id)
+    except Exception as e:
+        current_app.logger.error(e)
+        return jsonify(errno=RET.DBERR, errmsg="数据查询错误")
+    if not author:
+        return jsonify(errno=RET.NODATA, errmsg="未查询到数据")
+
+    # 根据要执行的操作去修改对应的数据
+    if action == "follow":
+        # 关注用户
+        if user not in author.followers:
+            author.followers.append(user)
+        else:
+            return jsonify(errno=RET.DATAEXIST, errmsg="当前用户已被关注")
+    else:
+        # 取消关注
+        if user in author.followers:
+            author.followers.remove(user)
+        else:
+            return jsonify(errno=RET.DATAEXIST, errmsg="当前用户未被关注")
+
+    return jsonify(errno=RET.OK, errmsg="操作成功")
+
+
 @news_blu.route("/comment_like", methods=["POST"])
 @user_login
 def set_comment_like():
