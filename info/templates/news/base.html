@@ -22,7 +22,7 @@
         {% endblock %}
         {% if data.user_info %}
             <div class="user_login fr">
-                <a href="/user/ info">
+                <a href="/user/info">
                     <img src="{% if data.user_info.avatar_url %}{{ data.user_info.avatar_url }}{% else %}../../static/news/images/person01.png{% endif %}" class="lgin_pic">
                 </a>
                 <a href="/user/info" id="nick_name">{{ data.user_info.nick_name }}</a>

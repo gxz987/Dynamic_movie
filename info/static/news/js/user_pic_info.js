@@ -19,7 +19,7 @@ $(function () {
                 if (resp.errno == "0") {
                     $(".now_user_pic").attr("src", resp.data)
                     $(".user_center_pic>img", parent.document).attr("src", resp.data)
-                    $(".user_login>img", parent.document).attr("src", resp.data)
+                    $(".user_login>a>img", parent.document).attr("src", resp.data)
                 }else {
                     alert(resp.errmsg)
                 }
