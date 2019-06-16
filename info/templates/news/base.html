@@ -52,8 +52,9 @@
             <ul class="rank_list">
                 {% for news in data.clicks_news_li %}
     {#                两种方法#}
-                    <li><span class="{{ loop.index | indexClass }}">{{ loop.index }}</span><a href="news/{{ news.id }}">{{ news.title }}</a></li>
-    {#                <li><span class="{{ loop.index | indexClass }}">{{ loop.index }}</span><a href="{{ url_for("news.detail", news_id=news.id) }}">{{ news.title }}</a></li>#}
+                    <li><span class="{{ loop.index | indexClass }}">{{ loop.index }}</span><a
+                            href="{{ news.id }}">{{ news.title }}</a></li>
+                    {#                    <li><span class="{{ loop.index | indexClass }}">{{ loop.index }}</span><a href="{{ url_for("news.detail", news_id=news.id) }}">{{ news.title }}</a></li>#}
 
                 {% endfor %}
 
