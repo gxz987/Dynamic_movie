@@ -1,7 +1,7 @@
 alembic==1.0.10
 backcall==0.1.0
 blinker==1.4
-certifi==2019.3.9
+certifi==2022.12.7
 chardet==3.0.4
 decorator==4.4.0
 Flask==0.10.1
